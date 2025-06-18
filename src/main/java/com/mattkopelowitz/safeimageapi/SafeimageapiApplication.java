@@ -1,0 +1,13 @@
+package com.mattkopelowitz.safeimageapi;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SafeimageapiApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SafeimageapiApplication.class, args);
+	}
+
+}
