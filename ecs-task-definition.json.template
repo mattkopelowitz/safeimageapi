@@ -22,6 +22,14 @@
         { "name": "AWS_ACCESS_KEY_ID", "value": "$AWS_ACCESS_KEY_ID" },
         { "name": "AWS_SECRET_ACCESS_KEY", "value": "$AWS_SECRET_ACCESS_KEY" }
       ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/safeimageapi",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
       "essential": true
     }
   ],
