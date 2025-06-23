@@ -25,7 +25,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/safeimageapi",
+          "awslogs-group": "/ecs/safeimageapi-task",
           "awslogs-region": "us-east-2",
           "awslogs-stream-prefix": "ecs"
         }
