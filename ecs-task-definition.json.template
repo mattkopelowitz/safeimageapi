@@ -1,0 +1,37 @@
+{
+  "family": "safeimageapi-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "containerDefinitions": [
+    {
+      "name": "safeimageapi",
+      "image": "$ECR_IMAGE_URI",
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "SPRING_DATASOURCE_URL", "value": "$SPRING_DATASOURCE_URL" },
+        { "name": "SPRING_DATASOURCE_USERNAME", "value": "$SPRING_DATASOURCE_USERNAME" },
+        { "name": "SPRING_DATASOURCE_PASSWORD", "value": "$SPRING_DATASOURCE_PASSWORD" },
+        { "name": "AWS_ACCESS_KEY_ID", "value": "$AWS_ACCESS_KEY_ID" },
+        { "name": "AWS_SECRET_ACCESS_KEY", "value": "$AWS_SECRET_ACCESS_KEY" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/safeimageapi-task",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "essential": true
+    }
+  ],
+  "executionRoleArn": "$ECS_TASK_EXECUTION_ROLE_ARN"
+}
