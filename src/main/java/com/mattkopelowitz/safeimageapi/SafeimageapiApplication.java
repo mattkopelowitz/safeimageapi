@@ -18,4 +18,3 @@ public class SafeimageapiApplication {
 		SpringApplication.run(SafeimageapiApplication.class, args);
 	}
 }
-
