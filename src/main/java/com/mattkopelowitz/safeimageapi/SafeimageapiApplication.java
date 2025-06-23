@@ -8,9 +8,14 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class SafeimageapiApplication {
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.configure().load();
-		dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+		// Only load .env file when running locally (i.e., in development)
+		String env = System.getenv("ENV");
+		if (env == null || env.equalsIgnoreCase("dev")) {
+			Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+			dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+		}
+
 		SpringApplication.run(SafeimageapiApplication.class, args);
 	}
-
 }
+
