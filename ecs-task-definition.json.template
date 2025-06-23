@@ -7,7 +7,7 @@
   "containerDefinitions": [
     {
       "name": "safeimageapi",
-      "image": "${{ secrets.ECR_IMAGE_URI }}",
+      "image": "$ECR_IMAGE_URI",
       "portMappings": [
         {
           "containerPort": 8080,
@@ -16,29 +16,14 @@
         }
       ],
       "environment": [
-        {
-          "name": "SPRING_DATASOURCE_URL",
-          "value": "${{ secrets.SPRING_DATASOURCE_URL }}"
-        },
-        {
-          "name": "SPRING_DATASOURCE_USERNAME",
-          "value": "${{ secrets.SPRING_DATASOURCE_USERNAME }}"
-        },
-        {
-          "name": "SPRING_DATASOURCE_PASSWORD",
-          "value": "${{ secrets.SPRING_DATASOURCE_PASSWORD }}"
-        },
-        {
-          "name": "AWS_ACCESS_KEY_ID",
-          "value": "${{ secrets.AWS_ACCESS_KEY_ID }}"
-        },
-        {
-          "name": "AWS_SECRET_ACCESS_KEY",
-          "value": "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-        }
+        { "name": "SPRING_DATASOURCE_URL", "value": "$SPRING_DATASOURCE_URL" },
+        { "name": "SPRING_DATASOURCE_USERNAME", "value": "$SPRING_DATASOURCE_USERNAME" },
+        { "name": "SPRING_DATASOURCE_PASSWORD", "value": "$SPRING_DATASOURCE_PASSWORD" },
+        { "name": "AWS_ACCESS_KEY_ID", "value": "$AWS_ACCESS_KEY_ID" },
+        { "name": "AWS_SECRET_ACCESS_KEY", "value": "$AWS_SECRET_ACCESS_KEY" }
       ],
       "essential": true
     }
   ],
-  "executionRoleArn": "${{ secrets.ECS_TASK_EXECUTION_ROLE_ARN }}"
+  "executionRoleArn": "$ECS_TASK_EXECUTION_ROLE_ARN"
 }
