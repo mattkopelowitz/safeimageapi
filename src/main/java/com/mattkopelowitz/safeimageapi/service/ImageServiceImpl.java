@@ -1,12 +1,12 @@
 package com.mattkopelowitz.safeimageapi.service;
 
 import com.mattkopelowitz.safeimageapi.dto.ImageUploadResponse;
+import com.mattkopelowitz.safeimageapi.dto.ModerationResult;
 import com.mattkopelowitz.safeimageapi.model.Image;
 import com.mattkopelowitz.safeimageapi.model.ImageTag;
 import com.mattkopelowitz.safeimageapi.repository.ImageRepository;
 import com.mattkopelowitz.safeimageapi.repository.ImageTagRepository;
-import com.mattkopelowitz.safeimageapi.service.ImageService;
-//import com.mattkopelowitz.safeimageapi.util.AIModerationUtil;
+import com.mattkopelowitz.safeimageapi.util.AIModerationUtil;
 //import com.mattkopelowitz.safeimageapi.util.S3Uploader;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +29,9 @@ public class ImageServiceImpl implements ImageService {
 
     @Autowired
     private S3Uploader s3Uploader;
-//
-//    @Autowired
-//    private AIModerationUtil moderationUtil;
+
+    @Autowired
+    private AIModerationUtil moderationUtil;
 
     @Override
     public ImageUploadResponse processAndStoreImage(MultipartFile file) {
@@ -41,55 +41,44 @@ public class ImageServiceImpl implements ImageService {
             String s3Url = s3Uploader.getPublicUrl(s3Key);
 
             // 2. Analyze with AI
-//        var moderationResult = moderationUtil.analyze(file);
+            ModerationResult moderationResult = moderationUtil.analyze(file);
 
-            // 3. Persist image
+            // 3. Create and persist image metadata
             Image image = new Image();
             image.setOriginalFilename(file.getOriginalFilename());
             image.setS3Key(s3Key);
             image.setS3Url(s3Url);
             image.setUploadedAt(LocalDateTime.now());
 
-//        image.setIsNsfw(moderationResult.isNsfw());
-//        image.setIsViolent(moderationResult.isViolent());
-//        image.setIsGory(moderationResult.isGory());
-//        image.setIsDrugsAndAlcohol(moderationResult.isDrugsAndAlcohol());
-//
-//        image.setNsfwConfidence(moderationResult.getNsfwConfidence());
-//        image.setViolenceConfidence(moderationResult.getViolenceConfidence());
-//        image.setGoreConfidence(moderationResult.getGoreConfidence());
-//        image.setDrugsAndAlcoholConfidence(moderationResult.getDrugsAndAlcoholConfidence());
+            image.setIsNsfw(moderationResult.isNsfw());
+            image.setIsViolent(moderationResult.isViolent());
+            image.setIsGory(moderationResult.isGory());
+            image.setIsDrugsAndAlcohol(moderationResult.isDrugsAndAlcohol());
 
-            image.setIsNsfw(false);
-            image.setIsViolent(true);
-            image.setIsGory(false);
-            image.setIsDrugsAndAlcohol(true);
-
-            image.setNsfwConfidence(0.1);
-            image.setViolenceConfidence(0.9);
-            image.setGoreConfidence(0.05);
-            image.setDrugsAndAlcoholConfidence(0.85);
+            image.setNsfwConfidence(moderationResult.getNsfwConfidence());
+            image.setViolenceConfidence(moderationResult.getViolenceConfidence());
+            image.setGoreConfidence(moderationResult.getGoreConfidence());
+            image.setDrugsAndAlcoholConfidence(moderationResult.getDrugsAndAlcoholConfidence());
 
             image = imageRepository.save(image);
 
-            ImageTag tag1 = new ImageTag("test-tag", 0.99, image);
-            ImageTag tag2 = new ImageTag("violence", 0.91, image);
-            imageTagRepository.saveAll(List.of(tag1, tag2));
-            image.setTags(List.of(tag1, tag2));
+            // 4. Map and save AI-generated tags
+            Image finalImage = image;
+            List<ImageTag> tags = moderationResult.getTags().stream()
+                    .map(tag -> new ImageTag(tag.getTag(), tag.getConfidence(), finalImage))
+                    .toList();
 
-            // 4. Save tags
-//        List<ImageTag> tags = moderationResult.getTags().stream()
-//                .map(t -> new ImageTag(t.getTag(), t.getConfidence(), image))
-//                .toList();
-//
-//        imageTagRepository.saveAll(tags);
-//        image.setTags(tags);
+            imageTagRepository.saveAll(tags);
+            image.setTags(tags);
 
+            // 5. Return DTO
             return new ImageUploadResponse(image);
-        } catch(IOException e) {
+
+        } catch (IOException e) {
             throw new RuntimeException("Failed to upload file", e);
         }
     }
+
 
     @Override
     public ResponseEntity<?> getImageMetadata(Long id) {
